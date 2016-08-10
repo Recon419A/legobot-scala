@@ -7,8 +7,8 @@ class WeatherListener extends Lego {
       msg.text.contains("90210")
     }
 
-    override def own_response(msg: Message): List[Message] = {
-      List(new Message("The weather is sunny. It's California.", None))
+    override def self_handle(msg: Message): Unit = {
+      outbox.enqueue(new Message("The weather is sunny.", None))
     }
   }
 
@@ -16,8 +16,8 @@ class WeatherListener extends Lego {
     msg.text.contains("!weather")
   }
 
-  override def own_response(msg: Message): List[Message] = {
+  override def self_handle(msg: Message): Unit = {
     children = new ZipCode() :: children
-    List(new Message("Please enter a zipcode:", None))
+    outbox.enqueue(new Message("Please enter a zipcode:", None))
   }
 }
