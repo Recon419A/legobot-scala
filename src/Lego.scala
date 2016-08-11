@@ -1,11 +1,12 @@
-/**
-  * Created by drew on 8/9/16.
-  */
+abstract class Lego (protected var children: List[Lego] = Nil,
+                     protected var finished: Boolean = false) extends Endpoint {
+  def self_listening_for(msg: Message): Boolean
 
-abstract class Lego (private var children: List[Lego]) extends Endpoint {
-  def self_listening_for(msg: Message): Boolean {}
+  def self_handle(msg: Message): Unit
 
-  def self_handle(msg: Message): Unit {}
+  override final def listening_for(msg: Message): Boolean = {
+    self_listening_for(msg) || children.exists(child => child.listening_for(msg))
+  }
 
   final def handle(msg: Message): Unit = {
     children.foreach(child => child.handle(msg))
@@ -15,9 +16,12 @@ abstract class Lego (private var children: List[Lego]) extends Endpoint {
     }
   }
 
-  final def poll(): List[Message] = {
-    val child_messages = children.flatMap(child => child.poll())
+  final def poll: List[Message] = {
+    val child_messages = children.flatMap(child => child.poll)
     val own_messages = outbox.dequeueAll(message => true).toList
+    // children that are finished have just had their final messages collected,
+    // so clean them up
+    children = children.filter(child => !child.finished)
     own_messages ::: child_messages
   }
 }

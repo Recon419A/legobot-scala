@@ -9,4 +9,5 @@ abstract class Endpoint (
 ) {
   def poll: List[Message]
   def handle(msg: Message)
+  def listening_for(msg: Message): Boolean
 }

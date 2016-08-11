@@ -8,7 +8,9 @@ class WeatherListener extends Lego {
     }
 
     override def self_handle(msg: Message): Unit = {
-      outbox.enqueue(new Message("The weather is sunny.", None))
+      val metadata = Metadata(this, msg.metadata.source)
+      outbox.enqueue(Message("The weather is sunny.", metadata))
+      finished = true
     }
   }
 
@@ -18,6 +20,7 @@ class WeatherListener extends Lego {
 
   override def self_handle(msg: Message): Unit = {
     children = new ZipCode() :: children
-    outbox.enqueue(new Message("Please enter a zipcode:", None))
+    val metadata = Metadata(this, msg.metadata.source)
+    outbox.enqueue(Message("Please enter a zipcode:", metadata))
   }
 }
