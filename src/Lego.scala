@@ -1,16 +1,8 @@
 /**
   * Created by drew on 8/9/16.
   */
-import scala.collection.mutable
 
-class Message(val text: String, val metadata: Object) {}
-
-class Metadata(val connector: Connector, val lego: Lego) {}
-
-abstract class Lego (var children: List[Lego] = Nil,
-                     var outbox: mutable.Queue[Message] =
-                       new mutable.Queue[Message]) {
-
+abstract class Lego (private var children: List[Lego]) extends Endpoint {
   def self_listening_for(msg: Message): Boolean {}
 
   def self_handle(msg: Message): Unit {}
